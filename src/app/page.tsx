@@ -1,5 +1,5 @@
 import { linksTable } from "@/lib/db/schemas";
-import { Form } from "./_components/form";
+import { Form } from "./_components/form/form";
 import db from '@/lib/db'
 
 export default async function Home() {

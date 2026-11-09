@@ -1,7 +1,7 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
-import * as z from 'zod'
+import { z } from 'zod'
 import {
     Field,
     FieldError,
@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { zodResolver } from '@hookform/resolvers/zod';
+import { createLink } from './createLink.action'
 
 const FormSchema = z.object({
     link: z.string().min(1).max(100)
@@ -27,8 +28,10 @@ export const Form = () => {
         resolver: zodResolver(FormSchema)
     })
 
-    const onSubmit = handleSubmit((values) => {
-        console.log({ values })
+    const onSubmit = handleSubmit(async (values) => {
+        await createLink({
+            originalUrl: values.link
+        })
     })
 
     return <form onSubmit={onSubmit}>
@@ -42,7 +45,7 @@ export const Form = () => {
                     }
                 </Field>
             </FieldGroup>
-            <Button type="submit">Submit</Button>
+            <Button type="submit">Submit finally</Button>
         </FieldSet>
     </form>
 }

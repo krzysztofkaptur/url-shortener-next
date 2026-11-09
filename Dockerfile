@@ -2,18 +2,16 @@
 # Stage 1: Dependencies Installation Stage
 # ============================================
 
-# IMPORTANT: Node.js Version Maintenance
-# This Dockerfile uses Node.js 24.13.0-slim, which was the latest LTS version at the time of writing.
-# To ensure security and compatibility, regularly update the NODE_VERSION ARG to the latest LTS version.
-ARG NODE_VERSION=24.13.0-slim
+# IMPORTANT: Docker Hardened Image (DHI) Version Maintenance
+# This Dockerfile uses dhi.io/node. Regularly validate and update to the latest DHI versions in the catalog for security and compatibility.
 
-FROM node:${NODE_VERSION} AS dependencies
+FROM dhi.io/node:24-alpine3.22-dev AS dependencies
 
 # Set working directory
 WORKDIR /app
 
 # Copy package-related files first to leverage Docker's caching mechanism
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* pnpm-workspace.yaml* .npmrc* ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
 # Install project dependencies with frozen lockfile for reproducible builds
 RUN --mount=type=cache,target=/root/.npm \
@@ -24,7 +22,7 @@ RUN --mount=type=cache,target=/root/.npm \
   elif [ -f yarn.lock ]; then \
     corepack enable yarn && yarn install --frozen-lockfile --production=false; \
   elif [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm config set package-import-method copy && pnpm install --frozen-lockfile; \
+    corepack enable pnpm && pnpm install --frozen-lockfile; \
   else \
     echo "No lockfile found." && exit 1; \
   fi
@@ -33,7 +31,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # Stage 2: Build Next.js application in standalone mode
 # ============================================
 
-FROM node:${NODE_VERSION} AS builder
+FROM dhi.io/node:24-alpine3.22-dev AS builder
 
 # Set working directory
 WORKDIR /app
@@ -71,7 +69,7 @@ RUN if [ -f package-lock.json ]; then \
 # Stage 3: Run Next.js application
 # ============================================
 
-FROM node:${NODE_VERSION} AS runner
+FROM dhi.io/node:24-alpine3.22-dev AS runner
 
 # Set working directory
 WORKDIR /app

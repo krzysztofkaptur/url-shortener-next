@@ -1,45 +1,39 @@
 services:
-  postgres:
+  db:
     image: postgres:16-alpine
-    container_name: url-shortener_postgres
+    container_name: url-shortener-db-dev
     restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: url-shortener
     ports:
-      - "5432:5432"
-    volumes: 
-      - url-shortener_postgres_data:/var/lib/postgresql/data
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d posts"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d url-shortener"]
       interval: 5s
       timeout: 5s
       retries: 10
+
   app:
-    build: .
-    container_name: url-shortener_app
-    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: url-shortener:dev
+    container_name: url-shortener-app-dev
     ports:
       - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/url-shortener
-      DATABASE_SSL: "false"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "fetch('http://localhost:8080/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 15s
+      WATCHPACK_POLLING: true
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/url-shortener
 
 volumes:
-  url-shortener_postgres_data:
+  postgres_data:
