@@ -971,7 +971,7 @@ flowchart LR
 
 One-time GitHub setup (already done for this repo):
 
-1. **AWS**: an IAM identity provider for `token.actions.githubusercontent.com` (audience `sts.amazonaws.com`), and the role `url-shortener-github-deploy`, which trusts it for `repo:krzysztofkaptur/url-shortener-next:ref:refs/heads/master`.
+1. **AWS**: an IAM identity provider for `token.actions.githubusercontent.com` (audience `sts.amazonaws.com`), and the role `url-shortener-github-deploy`, which trusts it for `repo:krzysztofkaptur@12236873/url-shortener-next@1451761738:ref:refs/heads/master`. The numbers are GitHub's permanent owner and repo IDs, included because this account customizes the OIDC subject claim.
 2. **GitHub > repo > Settings > Secrets and variables > Actions > New repository secret**:
    - `DOCKER_USERNAME`: your Docker Hub username
    - `DOCKER_TOKEN`: a Docker Hub personal access token (**Docker Hub > Account settings > Personal access tokens > Generate new token**, access **Read-only**). The build needs it to pull the `dhi.io` base images.
