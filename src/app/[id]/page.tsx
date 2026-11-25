@@ -2,13 +2,21 @@ import { redirect } from 'next/navigation';
 import db from '@/lib/db'
 import { linksTable } from '@/lib/db/schemas';
 import { eq } from 'drizzle-orm';
+import { Suspense } from 'react'
 
 type DetailsPageProps = {
     params: Promise<{ id: string }>;
 };
 
 export default async function DetailsPage({ params }: DetailsPageProps) {
-    // await db.select()
+    return (
+        <Suspense fallback={null}>
+            <RedirectToOriginalUrl params={params} />
+        </Suspense>
+    )
+}
+
+async function RedirectToOriginalUrl({ params }: DetailsPageProps) {
     const { id } = await params;
     const link = `https://shor.ty/${id}`
 
